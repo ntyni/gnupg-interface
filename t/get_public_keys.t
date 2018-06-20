@@ -13,7 +13,11 @@ use MyTestSpecific;
 use GnuPG::PrimaryKey;
 use GnuPG::SubKey;
 
+use version;
+
 my ( $given_key, $handmade_key );
+
+my $gnupg_version = version->parse($gnupg->version);
 
 TEST
 {
@@ -74,7 +78,7 @@ TEST
                             date_string => '2000-03-16',
                             hex_id => '56FFD10A260C4FA3',
                             sig_class => 0x10,
-                            validity => '!'),
+                            validity => $gnupg_version < version->parse('2.2.6') ? '!' : '?'),
       GnuPG::Signature->new(
                             date => 949813093,
                             algo_num => 17,
@@ -115,7 +119,7 @@ TEST
                             date_string => '2000-03-16',
                             hex_id => '56FFD10A260C4FA3',
                             sig_class => 0x10,
-                            validity => '!'),
+                            validity => $gnupg_version < version->parse('2.2.6') ? '!' : '?'),
       GnuPG::Signature->new(
                             date => 953179891,
                             algo_num => 17,
