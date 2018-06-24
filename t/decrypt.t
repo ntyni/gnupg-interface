@@ -6,12 +6,15 @@
 use strict;
 use English qw( -no_match_vars );
 use File::Compare;
+use version;
 
 use lib './t';
 use MyTest;
 use MyTestSpecific;
 
 my $compare;
+
+my $gnupg_version = version->parse($gnupg->version);
 
 TEST
 {
@@ -26,7 +29,13 @@ TEST
     close $stdout;
     waitpid $pid, 0;
 
-    return $CHILD_ERROR == 0;;
+    if ($gnupg_version < version->parse('2.2.8')) {
+        return $CHILD_ERROR == 0;;
+    } else {
+        local $/ = undef;
+        my $errstr = <$stderr>;
+        return (($CHILD_ERROR >> 8 == 2) and ($errstr =~ /ignore-mdc-error/));
+    }
 };
 
 
@@ -50,7 +59,13 @@ TEST
 
     waitpid $pid, 0;
 
-    return $CHILD_ERROR == 0;
+    if ($gnupg_version < version->parse('2.2.8')) {
+        return $CHILD_ERROR == 0;
+    } else {
+        local $/ = undef;
+        my $errstr = <$stderr>;
+        return (($CHILD_ERROR >> 8 == 2) and ($errstr =~ /ignore-mdc-error/));
+    }
 };
 
 
